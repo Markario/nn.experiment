@@ -3,7 +3,7 @@ package com.markario.nn.neural.weights;
 /**
  * Created by markzepeda on 6/21/15.
  */
-public interface GenericWeight<T extends GenericWeight, V> extends Comparable<T> {
+public interface GenericWeight<T extends GenericWeight> extends Comparable<T> {
     /**
      * Initialize the Weight to a "zero" value and return self.
      * @return Self
@@ -43,14 +43,15 @@ public interface GenericWeight<T extends GenericWeight, V> extends Comparable<T>
     T multiply(T otherWeight);
 
     /**
+     * Apply sigmoid function to Self.
+     * @param activationResponse
+     * @return Self
+     */
+    T sigmoid(T activationResponse);
+
+    /**
      * Copy otherWeight into Self.
      * @return Self
      */
     T copy(T otherWeight);
-
-    /**
-     * Return the underlying value of this weight.
-     * @return
-     */
-    V value();
 }

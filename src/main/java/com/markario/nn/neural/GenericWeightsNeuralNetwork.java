@@ -5,9 +5,9 @@ import com.markario.nn.neural.weights.GenericWeight;
 /**
  * Created by markzepeda on 6/21/15.
  */
-public class GenericWeightsNeuralNetwork<V, T extends GenericWeight<T, V>> extends NeuralNetwork<T> {
+public class GenericWeightsNeuralNetwork<T extends GenericWeight<T>> extends NeuralNetwork<T> {
 
-    public GenericWeightsNeuralNetwork(NeuralNetworkConfig<T> config) {
+    public GenericWeightsNeuralNetwork(GenericWeightsNNConfig<T> config) {
         super(config);
     }
 

@@ -1,9 +1,7 @@
 package com.markario.nn.neural;
 
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import java.util.function.TriFunction;
 
 /**
  * Created by markzepeda on 6/21/15.

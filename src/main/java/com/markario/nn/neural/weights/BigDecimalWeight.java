@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * Created by markzepeda on 6/21/15.
  */
-public class BigDecimalWeight implements GenericWeight<BigDecimalWeight, BigDecimal> {
+public class BigDecimalWeight implements GenericWeight<BigDecimalWeight> {
     private BigDecimal value = new BigDecimal(0);
     private static final Random random = new Random();
 
@@ -49,14 +49,16 @@ public class BigDecimalWeight implements GenericWeight<BigDecimalWeight, BigDeci
     }
 
     @Override
-    public BigDecimalWeight copy(BigDecimalWeight otherWeight) {
-        value = otherWeight.value;
+    public BigDecimalWeight sigmoid(BigDecimalWeight activationResponse) {
+        BigDecimal exp = BigDecimal.valueOf(Math.E).pow(value.negate().divide(activationResponse.value).intValue());
+        value = (BigDecimal.ONE.divide(BigDecimal.ONE.add(exp)));
         return this;
     }
 
     @Override
-    public BigDecimal value() {
-        return value;
+    public BigDecimalWeight copy(BigDecimalWeight otherWeight) {
+        value = otherWeight.value;
+        return this;
     }
 
     @Override

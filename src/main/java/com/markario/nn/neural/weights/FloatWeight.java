@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * Created by markzepeda on 6/21/15.
  */
-public class FloatWeight implements GenericWeight<FloatWeight, Float> {
+public class FloatWeight implements GenericWeight<FloatWeight> {
     private float value;
     private static final Random random = new Random();
 
@@ -45,14 +45,15 @@ public class FloatWeight implements GenericWeight<FloatWeight, Float> {
     }
 
     @Override
-    public FloatWeight copy(FloatWeight otherWeight) {
-        value = otherWeight.value;
+    public FloatWeight sigmoid(FloatWeight activationResponse) {
+        value = ( 1 / ( 1 + ((float)Math.exp(-value / activationResponse.value))));
         return this;
     }
 
     @Override
-    public Float value() {
-        return value;
+    public FloatWeight copy(FloatWeight otherWeight) {
+        value = otherWeight.value;
+        return this;
     }
 
     @Override

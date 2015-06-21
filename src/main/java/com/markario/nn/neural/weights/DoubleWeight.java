@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * Created by markzepeda on 6/21/15.
  */
-public class DoubleWeight implements GenericWeight<DoubleWeight, Double> {
+public class DoubleWeight implements GenericWeight<DoubleWeight> {
     private double value;
     private static final Random random = new Random();
 
@@ -45,14 +45,15 @@ public class DoubleWeight implements GenericWeight<DoubleWeight, Double> {
     }
 
     @Override
-    public DoubleWeight copy(DoubleWeight otherWeight) {
-        value = otherWeight.value;
+    public DoubleWeight sigmoid(DoubleWeight activationResponse) {
+        value = ( 1 / ( 1 + Math.exp(-value / activationResponse.value)));
         return this;
     }
 
     @Override
-    public Double value() {
-        return value;
+    public DoubleWeight copy(DoubleWeight otherWeight) {
+        value = otherWeight.value;
+        return this;
     }
 
     @Override

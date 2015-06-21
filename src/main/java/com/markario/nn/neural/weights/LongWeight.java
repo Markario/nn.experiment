@@ -7,7 +7,7 @@ import java.util.Random;
 /**
  * Created by markzepeda on 6/21/15.
  */
-public class LongWeight implements GenericWeight<LongWeight, Long> {
+public class LongWeight implements GenericWeight<LongWeight> {
     private long value;
     private static final Random random = new Random();
 
@@ -48,14 +48,15 @@ public class LongWeight implements GenericWeight<LongWeight, Long> {
     }
 
     @Override
-    public LongWeight copy(LongWeight otherWeight) {
-        value = otherWeight.value;
+    public LongWeight sigmoid(LongWeight activationResponse) {
+        value = ( 1 / ( 1 + ((long)Math.exp(-value / activationResponse.value))));
         return this;
     }
 
     @Override
-    public Long value() {
-        return value;
+    public LongWeight copy(LongWeight otherWeight) {
+        value = otherWeight.value;
+        return this;
     }
 
     @Override

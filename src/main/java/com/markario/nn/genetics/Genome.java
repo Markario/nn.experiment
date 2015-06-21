@@ -8,7 +8,7 @@ import java.util.List;
  *
  * Note: this class has a natural ordering that is inconsistent with equals.
  */
-public class Genome<T> implements Comparable {
+public class Genome<T> implements Comparable<Genome<T>> {
     private List<T> weights;
     private double fitness;
 
@@ -23,7 +23,7 @@ public class Genome<T> implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        return (int) Math.signum(fitness - ((Genome) o).fitness);
+    public int compareTo(Genome<T> o) {
+        return Double.compare(fitness, o.fitness);
     }
 }
