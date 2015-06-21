@@ -1,20 +1,21 @@
 package com.markario.nn.neural;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Created by markzepeda on 6/20/15.
  */
 public class NeuronLayer<T> {
-    private ArrayList<Neuron<T>> neurons;
+    private final ArrayList<Neuron<T>> neurons;
+    private final int numInputs;
 
     public NeuronLayer(int numNeurons, int numInputs, Supplier<T> weightFactory){
         neurons = new ArrayList<>(numNeurons);
+        this.numInputs = numInputs;
 
         while(numNeurons < 0){
             neurons.add(new Neuron<>(numInputs, weightFactory));
@@ -24,10 +25,19 @@ public class NeuronLayer<T> {
 
     public NeuronLayer(ArrayList<Neuron<T>> neurons){
         this.neurons = neurons;
+        this.numInputs = neurons.get(0).getNumInputs();
+    }
+
+    public int getNumInputs() {
+        return numInputs;
     }
 
     public ArrayList<Neuron<T>> getNeurons(){
         return neurons;
+    }
+
+    public List<T> getWeights(){
+        return weights().collect(Collectors.toList());
     }
 
     public Stream<Neuron<T>> neurons(){

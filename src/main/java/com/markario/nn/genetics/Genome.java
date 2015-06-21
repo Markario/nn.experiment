@@ -1,6 +1,7 @@
 package com.markario.nn.genetics;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by markzepeda on 6/20/15.
@@ -8,15 +9,15 @@ import java.util.LinkedList;
  * Note: this class has a natural ordering that is inconsistent with equals.
  */
 public class Genome<T> implements Comparable {
-    private LinkedList<T> weights;
-    private float fitness;
+    private List<T> weights;
+    private double fitness;
 
     public Genome(){
-        fitness = 0f;
+        fitness = 0;
         weights = new LinkedList<>();
     }
 
-    public Genome(float fitness, LinkedList<T> weights){
+    public Genome(double fitness, List<T> weights){
         this.fitness = fitness;
         this.weights = weights;
     }
