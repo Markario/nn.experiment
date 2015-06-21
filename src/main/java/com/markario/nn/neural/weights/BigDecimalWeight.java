@@ -1,12 +1,14 @@
 package com.markario.nn.neural.weights;
 
+import com.sun.istack.internal.NotNull;
+
 import java.math.BigDecimal;
 import java.util.Random;
 
 /**
  * Created by markzepeda on 6/21/15.
  */
-public class BigDecimalWeight implements GenericWeight<BigDecimalWeight> {
+public class BigDecimalWeight implements GenericWeight<BigDecimalWeight, BigDecimal> {
     private BigDecimal value = new BigDecimal(0);
     private static final Random random = new Random();
 
@@ -19,6 +21,12 @@ public class BigDecimalWeight implements GenericWeight<BigDecimalWeight> {
     @Override
     public BigDecimalWeight identity() {
         value = BigDecimal.ONE;
+        return this;
+    }
+
+    @Override
+    public BigDecimalWeight negate() {
+        value = value.negate();
         return this;
     }
 
@@ -44,5 +52,15 @@ public class BigDecimalWeight implements GenericWeight<BigDecimalWeight> {
     public BigDecimalWeight copy(BigDecimalWeight otherWeight) {
         value = otherWeight.value;
         return this;
+    }
+
+    @Override
+    public BigDecimal value() {
+        return value;
+    }
+
+    @Override
+    public int compareTo(BigDecimalWeight o) {
+        return value.compareTo(o.value);
     }
 }

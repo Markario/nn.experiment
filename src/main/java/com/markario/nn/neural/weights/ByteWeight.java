@@ -5,19 +5,25 @@ import java.util.Random;
 /**
  * Created by markzepeda on 6/21/15.
  */
-public class ByteWeight implements GenericWeight<ByteWeight> {
+public class ByteWeight implements GenericWeight<ByteWeight, Byte> {
     private byte value;
     private static final Random random = new Random();
 
     @Override
     public ByteWeight zero() {
-        value = 0x0;
+        value = 0b000_0000;
         return this;
     }
 
     @Override
     public ByteWeight identity() {
-        value = 0xF;
+        value = 0b111_1111;
+        return this;
+    }
+
+    @Override
+    public ByteWeight negate() {
+        value = (byte) (~value & 0b111_1111);
         return this;
     }
 
@@ -37,7 +43,7 @@ public class ByteWeight implements GenericWeight<ByteWeight> {
 
     @Override
     public ByteWeight multiply(ByteWeight otherWeight) {
-        value &= otherWeight.value;
+        value *= otherWeight.value;
         return this;
     }
 
@@ -45,5 +51,15 @@ public class ByteWeight implements GenericWeight<ByteWeight> {
     public ByteWeight copy(ByteWeight otherWeight) {
         value = otherWeight.value;
         return this;
+    }
+
+    @Override
+    public Byte value() {
+        return value;
+    }
+
+    @Override
+    public int compareTo(ByteWeight o) {
+        return Byte.compare(value, o.value);
     }
 }

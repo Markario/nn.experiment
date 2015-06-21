@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * Created by markzepeda on 6/21/15.
  */
-public class FloatWeight implements GenericWeight<FloatWeight> {
+public class FloatWeight implements GenericWeight<FloatWeight, Float> {
     private float value;
     private static final Random random = new Random();
 
@@ -18,6 +18,11 @@ public class FloatWeight implements GenericWeight<FloatWeight> {
     @Override
     public FloatWeight identity() {
         value = 1f;
+        return this;
+    }
+
+    @Override
+    public FloatWeight negate() {
         return this;
     }
 
@@ -43,5 +48,15 @@ public class FloatWeight implements GenericWeight<FloatWeight> {
     public FloatWeight copy(FloatWeight otherWeight) {
         value = otherWeight.value;
         return this;
+    }
+
+    @Override
+    public Float value() {
+        return value;
+    }
+
+    @Override
+    public int compareTo(FloatWeight o) {
+        return Float.compare(value, o.value);
     }
 }
