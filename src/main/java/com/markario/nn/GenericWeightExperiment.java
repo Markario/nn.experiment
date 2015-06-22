@@ -26,33 +26,58 @@ public class GenericWeightExperiment<T extends GenericWeight<T>> {
         ExperimentConfig config = FileUtil.readTFromTextFile(new File("config.json"), ExperimentConfig.class);
         GenericWeightExperiment<DoubleWeight> experiment = new GenericWeightExperiment<>(config, () -> new DoubleWeight().zero());
 
-        List<DoubleWeight> inputs = new ArrayList<>(config.numInputs);
-        for(int i = 0; i < config.numInputs; i++){
-            inputs.add(new DoubleWeight().random());
-        }
-
         Random random = new Random();
-        double target = random.nextDouble() * 5000;
 
-        for(int gen = 0; gen < 300; gen++){
-            for(int updates = 0; updates < 100; updates++){
+        List<DoubleWeight> inputs = new ArrayList<>(config.numInputs);
+        DoubleWeight weight = new DoubleWeight().random();
+        inputs.add(weight);
+
+        for(int gen = 0; gen < 10000; gen++){
+            double input = 0.0d;
+            while(input <= 2 * Math.PI){
                 for(int i = 0; i < config.populationSize; i++){
+                    double target = Math.sin(input);
+                    weight.value = input;
                     List<DoubleWeight> outputs = experiment.update(i, inputs);
-                    //train the networks to output higher values.
-                    double sum = outputs.stream().mapToDouble(value -> value.value).sum();
-                    double fitness = 10000 - Math.abs(target-sum);
-                    experiment.setFitness(i, fitness);
+                    //double sum = outputs.stream().mapToDouble(value -> value.value).sum();
+                    double output = outputs.get(0).value;
+                    double fitness = 1 - Math.abs(target-output);
+                    experiment.addFitness(i, fitness);
+                    //Trace.v(String.format("i: %d, target: %f, sum: %f, fitnessChange: %f, totalFitness: %f",i, target, sum, fitness, experiment.getFitness(i)));
                 }
+                input += .01;
             }
 
-            Trace.v("------------------------------");
             experiment.nextGeneration();
-            Trace.v(String.format("Target: %f", target));
-            int bestIndex = experiment.genetics.getStats().getMostFitGenomeIndex();
-            double sum = experiment.getNeuralNetwork(bestIndex).update(inputs).stream().mapToDouble(value -> value.value).sum();
-            Trace.v("Sum for best: "+sum);
-            Trace.v("------------------------------");
+
+            if(gen % 10 == 0){
+                Trace.v(String.format("Gen: %d, stats: %s",experiment.genetics.getGenerationNum(), experiment.getGenetics().getStats().toString()));
+            }
         }
+
+        Trace.v("------------------------------");
+        Trace.v("Best chosen");
+        double input = 0.0d;
+        experiment.setFitness(0,0);
+        double maxFitness = 0d;
+        int iterations = 10;
+        while(input < Math.PI * 2 && iterations > 0){
+            weight.value = input;
+            double correctValue = Math.sin(input);
+            List<DoubleWeight> outputs = experiment.update(0, inputs);
+            //train the networks to output higher values.
+            double sum = outputs.stream().mapToDouble(value -> value.value).sum();
+            Trace.v(String.format("Input: %f CorrectValue: %f, Output: %f AbsDiff: %f", input, correctValue, sum, Math.abs(correctValue-sum)));
+            double fitness = 1 - Math.abs(correctValue-sum);
+            experiment.addFitness(0, fitness);
+            input += .01;
+            maxFitness += 1;
+            if(input >= Math.PI * 2){
+                iterations--;
+                input = 0;
+            }
+        }
+        Trace.v("BestGenome's fitness: "+experiment.getFitness(0)+" maxFitnessPossible: "+maxFitness+" grade: "+((experiment.getFitness(0)/maxFitness)*100d));
     }
 
     private transient WeightHandler<T> weightHandler;

@@ -1,12 +1,12 @@
 {
-  "numInputs": 4,
+  "numInputs": 1,
   "numHiddenLayers": 2,
-  "numNeuronsPerHiddenLayer": 50,
-  "numOutputs": 50,
-  "populationSize": 30,
+  "numNeuronsPerHiddenLayer": 10,
+  "numOutputs": 1,
+  "populationSize": 20,
   "crossoverRate": 0.7,
   "mutationRate": 0.1,
-  "maxMutationPercentage": 0.3,
+  "maxMutationPercentage": 0.05,
   "numBestToCopy": 4,
   "numCopiesOfBest": 1
 }

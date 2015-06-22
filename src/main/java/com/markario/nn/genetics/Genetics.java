@@ -20,6 +20,7 @@ public class Genetics<T> {
     private Stats stats;
     Supplier<T> weightFactory;
     WeightHandler<T> weightHandler;
+    private List<Genome<T>> best;
 
     private transient Random random = new Random();
 
@@ -30,6 +31,7 @@ public class Genetics<T> {
         this.config = config;
         this.stats = new Stats();
         population = new ArrayList<>(config.populationSize);
+        best = new ArrayList<>(config.numBestToCopy*2);
         weightHandler = config.weightHandler;
         weightFactory = weightHandler::getIdentityWeight;
 
@@ -48,7 +50,7 @@ public class Genetics<T> {
     }
 
     private Genome<T> roulette() {
-        double slice = random.nextDouble() * stats.getPosTotalFitness();
+        double slice = random.nextDouble() * stats.getPosTotalFitness() * .75f;
         double fitnessCounter = 0.0;
 
         for (Genome<T> genome : population) {
@@ -77,12 +79,28 @@ public class Genetics<T> {
         stats.calculate();
 
         //If even numbered of elite genomes will be carried over.
-        if (config.numBestToCopy * config.numCopiesOfBest % 2 == 0) {
-            population.stream().limit(config.numBestToCopy).forEachOrdered(tGenome -> {
-                for (int i = 0; i < config.numCopiesOfBest; i++) {
-                    newPopulation.add(tGenome.getCopy(weightFactory, weightHandler));
-                }
-            });
+//        if (config.numBestToCopy * config.numCopiesOfBest % 2 == 0) {
+//            population.stream().limit(config.numBestToCopy).forEachOrdered(tGenome -> {
+//                for (int i = 0; i < config.numCopiesOfBest; i++) {
+//                    newPopulation.add(tGenome.getCopy(weightFactory, weightHandler));
+//                }
+//            });
+//        }
+
+        if(config.numBestToCopy > 0){
+            for(int i = 0; i < config.numBestToCopy; i++){
+                best.add(population.get(i).getCopy(weightFactory, weightHandler));
+            }
+            Collections.sort(best, Collections.reverseOrder());
+            while(best.size() > config.numBestToCopy){
+                best.remove(best.size()-1);
+            }
+        }
+
+        if(best.size() > 0){
+            for(int i = 0; i < best.size() && i < config.numBestToCopy; i++){
+                newPopulation.add(best.get(i).getCopy(weightFactory, weightHandler));
+            }
         }
 
         while (newPopulation.size() < population.size()) {
@@ -124,11 +142,14 @@ public class Genetics<T> {
             newPopulation.add(child2);
         }
 
-        Trace.v("Created new generation.");
-        Trace.v(String.format("Previous generation: %d stats: %s", generationNum, stats.toString()));
+        //Trace.v("Created new generation.");
+        //Trace.v(String.format("Previous generation: %d stats: %s", generationNum, stats.toString()));
 
         population.clear();
         population = newPopulation;
+
+        population.stream().forEachOrdered(tGenome -> tGenome.setFitness(0))
+        ;
         generationNum++;
     }
 
