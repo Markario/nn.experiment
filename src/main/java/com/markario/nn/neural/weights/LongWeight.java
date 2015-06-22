@@ -60,6 +60,12 @@ public class LongWeight implements GenericWeight<LongWeight> {
     }
 
     @Override
+    public LongWeight mutate(Double percentage) {
+        value = (long) (value * (1.0 + percentage));
+        return this;
+    }
+
+    @Override
     public int compareTo(LongWeight o) {
         return Long.compare(value, o.value);
     }

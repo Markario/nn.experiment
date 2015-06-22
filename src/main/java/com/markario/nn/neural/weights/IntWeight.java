@@ -57,6 +57,12 @@ public class IntWeight implements GenericWeight<IntWeight> {
     }
 
     @Override
+    public IntWeight mutate(Double percentage) {
+        value = (int) (value * (1.0 + percentage));
+        return this;
+    }
+
+    @Override
     public int compareTo(IntWeight o) {
         return Integer.compare(value, o.value);
     }

@@ -60,6 +60,12 @@ public class ByteWeight implements GenericWeight<ByteWeight> {
     }
 
     @Override
+    public ByteWeight mutate(Double percentage) {
+        value = (byte) (value * (1.0 + percentage));
+        return this;
+    }
+
+    @Override
     public int compareTo(ByteWeight o) {
         return Byte.compare(value, o.value);
     }

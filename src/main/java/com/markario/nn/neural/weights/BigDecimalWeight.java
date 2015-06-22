@@ -62,6 +62,12 @@ public class BigDecimalWeight implements GenericWeight<BigDecimalWeight> {
     }
 
     @Override
+    public BigDecimalWeight mutate(Double percentage) {
+        value = value.multiply(BigDecimal.valueOf(1 + percentage));
+        return this;
+    }
+
+    @Override
     public int compareTo(BigDecimalWeight o) {
         return value.compareTo(o.value);
     }

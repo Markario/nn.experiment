@@ -1,5 +1,7 @@
 package com.markario.nn.neural;
 
+import com.markario.nn.neural.weights.WeightHandler;
+
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -13,8 +15,7 @@ public class NeuralNetworkConfig<T> {
     public int numHiddenLayers = 1;
     public int numNeuronsPerHiddenLayer = 6;
     public int numOutputs = 2;
-    public Supplier<T> weightFactory;
-    public BiFunction<T, T, T> weightFilter;
+    public WeightHandler<T> weightHandler;
 
     public NeuralNetworkConfig(T activationResponse,
                                T bias,
@@ -22,8 +23,7 @@ public class NeuralNetworkConfig<T> {
                                int numHiddenLayers,
                                int numNeuronsPerHiddenLayer,
                                int numOutputs,
-                               Supplier<T> weightFactory,
-                               BiFunction<T, T, T> weightFilter) {
+                               WeightHandler<T> weightHandler) {
 
         this.activationResponse = activationResponse;
         this.bias = bias;
@@ -31,7 +31,6 @@ public class NeuralNetworkConfig<T> {
         this.numHiddenLayers = numHiddenLayers;
         this.numNeuronsPerHiddenLayer = numNeuronsPerHiddenLayer;
         this.numOutputs = numOutputs;
-        this.weightFactory = weightFactory;
-        this.weightFilter = weightFilter;
+        this.weightHandler = weightHandler;
     }
 }

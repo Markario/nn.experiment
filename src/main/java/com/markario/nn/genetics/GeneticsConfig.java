@@ -1,6 +1,6 @@
 package com.markario.nn.genetics;
 
-import java.util.function.Supplier;
+import com.markario.nn.neural.weights.WeightHandler;
 
 /**
  * Created by markzepeda on 6/21/15.
@@ -8,18 +8,30 @@ import java.util.function.Supplier;
 public class GeneticsConfig<T> {
     public int populationSize = 100;
 
-    //probability of chromosomes crossing over bits
-    //0.7 is pretty good
+    //change that two genomes will cross genes
     public double crossoverRate = 0.7;
 
-    //probability that a chromosomes bits will mutate.
-    //Try figures around 0.05 to 0.3 ish
+    //chance for mutation
     public double mutationRate = 0.1;
 
     //How much the chromosomes will change
-    public double maxPerturbation = 0.3;
+    public double maxMutationPercentage = 0.3;
 
-    public int numGenomeWeights;
+    //number of the genomes with highest fitness to copy over directly into a new generation.
+    public int numBestToCopy = 4;
 
-    public Supplier<T> weightFactory;
+    //number of copies of the above highest fitness genomes to copy over in a new generation.
+    public int numCopiesOfBest = 1;
+
+    public WeightHandler<T> weightHandler;
+
+    public GeneticsConfig(int populationSize, double crossoverRate, double mutationRate, double maxMutationPercentage, int numBestToCopy, int numCopiesOfBest, WeightHandler<T> weightHandler) {
+        this.populationSize = populationSize;
+        this.crossoverRate = crossoverRate;
+        this.mutationRate = mutationRate;
+        this.maxMutationPercentage = maxMutationPercentage;
+        this.numBestToCopy = numBestToCopy;
+        this.numCopiesOfBest = numCopiesOfBest;
+        this.weightHandler = weightHandler;
+    }
 }

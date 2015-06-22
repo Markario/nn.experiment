@@ -54,4 +54,11 @@ public interface GenericWeight<T extends GenericWeight> extends Comparable<T> {
      * @return Self
      */
     T copy(T otherWeight);
+
+    /**
+     * Mutate this weight by the signed percentage
+     * @param percentage signed percentage to change.
+     * @return
+     */
+    T mutate(Double percentage);
 }

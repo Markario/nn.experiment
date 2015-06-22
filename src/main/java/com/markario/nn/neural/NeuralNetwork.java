@@ -1,45 +1,69 @@
 package com.markario.nn.neural;
 
+import com.markario.nn.neural.weights.WeightHandler;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Created by markzepeda on 6/20/15.
  */
-public abstract class NeuralNetwork<T> {
+public final class NeuralNetwork<T> {
     private final ArrayList<NeuronLayer<T>> layers;
     protected final NeuralNetworkConfig<T> config;
-
+    private final WeightHandler<T> weightHandler;
+    private final Supplier<T> weightFactory;
+    /**
+     * Create a new NeuralNetwork based on the provided Config.
+     * @param config
+     */
     public NeuralNetwork(NeuralNetworkConfig<T> config){
         this.config = config;
+        this.weightHandler = config.weightHandler;
+        this.weightFactory = weightHandler::getIdentityWeight;
 
         layers = new ArrayList<>(config.numHiddenLayers+1);
         if(config.numHiddenLayers > 0){
-            layers.add(new NeuronLayer<>(config.numNeuronsPerHiddenLayer, config.numInputs, config.weightFactory));
+            layers.add(new NeuronLayer<>(config.numNeuronsPerHiddenLayer, config.numInputs, weightFactory));
             for(int i = 0; i < config.numHiddenLayers - 1; i++){
-                layers.add(new NeuronLayer<>(config.numNeuronsPerHiddenLayer, config.numNeuronsPerHiddenLayer, config.weightFactory));
+                layers.add(new NeuronLayer<>(config.numNeuronsPerHiddenLayer, config.numNeuronsPerHiddenLayer, weightFactory));
             }
-            layers.add(new NeuronLayer<>(config.numOutputs, config.numNeuronsPerHiddenLayer, config.weightFactory));
+            layers.add(new NeuronLayer<>(config.numOutputs, config.numNeuronsPerHiddenLayer, weightFactory));
         }else{
-            layers.add(new NeuronLayer<>(config.numOutputs, config.numInputs, config.weightFactory));
+            layers.add(new NeuronLayer<>(config.numOutputs, config.numInputs, weightFactory));
         }
     }
 
-    public void setWeights(ArrayList<T> newWeights){
+    public static int calculateNumWeights(NeuralNetworkConfig<?> config){
+        int numWeights = 0;
+        if(config.numHiddenLayers > 0){
+            numWeights += config.numNeuronsPerHiddenLayer * config.numInputs;
+            for(int i = 0; i < config.numHiddenLayers - 1; i++){
+                numWeights += config.numNeuronsPerHiddenLayer * config.numNeuronsPerHiddenLayer;
+            }
+            numWeights += config.numOutputs * config.numNeuronsPerHiddenLayer;
+        }else{
+            numWeights += config.numOutputs * config.numInputs;
+        }
+        return numWeights;
+    }
+
+    public final void setWeights(List<T> newWeights){
         int weightIndex = 0;
         List<Neuron<T>> neurons = getNeurons();
         for(int i = 0; i < neurons.size() && weightIndex < newWeights.size(); i++){
             List<T> neuronWeights = neurons.get(i).getWeights();
             for(int j = 0; j <neuronWeights.size(); j++){
-                neuronWeights.set(j, newWeights.get(weightIndex));
+                neuronWeights.set(j, weightHandler.copyIntoWeight(neuronWeights.get(j), newWeights.get(weightIndex)));
                 weightIndex++;
             }
         }
     }
 
-    public List<T> update(List<T> inputs){
+    public final List<T> update(List<T> inputs){
         if(inputs == null){
             throw new IllegalArgumentException("Inputs are null");
         }
@@ -70,30 +94,42 @@ public abstract class NeuralNetwork<T> {
         return outputs;
     }
 
-    public List<T> calcNeuronLayerOutputs(List<Neuron<T>> neurons, List<T> inputs){
+    /**
+     * Calculate a list of outputs from a set of Neurons given a list of inputs.
+     * @param neurons
+     * @param inputs
+     * @return
+     */
+    private List<T> calcNeuronLayerOutputs(List<Neuron<T>> neurons, List<T> inputs){
         List<T> outputs = new ArrayList<>(neurons.size());
 
         for (Neuron<T> neuron : neurons) {
             T output = calcNeuronOutput(neuron, inputs);
-            outputs.add(config.weightFilter.apply(output, config.activationResponse));
+            outputs.add(weightHandler.sigmoid(output, config.activationResponse));
         }
 
         return outputs;
     }
 
-    public T calcNeuronOutput(Neuron<T> neuron, List<T> inputs){
+    /**
+     * Calculate the output for a Neuron given a list of inputs.
+     * @param neuron
+     * @param inputs
+     * @return
+     */
+    private T calcNeuronOutput(Neuron<T> neuron, List<T> inputs){
         NeuralNetworkConfig<T> config = getConfig();
 
-        T output = getZeroedWeight();
+        T output = weightHandler.getZeroedWeight();
 
         List<T> weights = neuron.getWeights();
-        T copyHolder = getZeroedWeight();
+        T copyHolder = weightHandler.getZeroedWeight();
         for (int k = 0; k < inputs.size(); k++) {
             //Copies a neuron weight into a holder value which is multiplied by the corresponding input weight and added into the output.
-            addWeights(output, multiplyWeight(copyWeight(copyHolder, weights.get(k)), inputs.get(k)));
+            weightHandler.addIntoWeight(output, weightHandler.multiplyIntoWeight(weightHandler.copyIntoWeight(copyHolder, weights.get(k)), inputs.get(k)));
         }
         //Copies the last weight (aka bias/threshold) and multiplies it by the bias weight.
-        addWeights(output, multiplyWeight(copyWeight(copyHolder, weights.get(weights.size() - 1)), config.bias));
+        weightHandler.addIntoWeight(output, weightHandler.multiplyIntoWeight(weightHandler.copyIntoWeight(copyHolder, weights.get(weights.size() - 1)), config.bias));
         return output;
     }
 
@@ -114,12 +150,7 @@ public abstract class NeuralNetwork<T> {
 //        return output;
 //    }
 
-    public abstract T getZeroedWeight();
-    public abstract T addWeights(T weight1, T weight2);
-    public abstract T copyWeight(T into, T from);
-    public abstract T multiplyWeight(T weight1, T weight2);
-
-    public NeuralNetworkConfig<T> getConfig() {
+    protected NeuralNetworkConfig<T> getConfig() {
         return config;
     }
 
@@ -131,19 +162,19 @@ public abstract class NeuralNetwork<T> {
         return weights().collect(Collectors.toList());
     }
 
-    public List<Neuron<T>> getNeurons(){
+    protected List<Neuron<T>> getNeurons(){
         return neurons().collect(Collectors.toList());
     }
 
-    public List<NeuronLayer<T>> getLayers(){
+    protected List<NeuronLayer<T>> getLayers(){
         return layers;
     }
 
-    public Stream<NeuronLayer<T>> layers(){
+    protected Stream<NeuronLayer<T>> layers(){
         return layers(this);
     }
 
-    public Stream<Neuron<T>> neurons(){
+    protected Stream<Neuron<T>> neurons(){
         return neurons(this);
     }
 
@@ -151,15 +182,15 @@ public abstract class NeuralNetwork<T> {
         return weights(this);
     }
 
-    public static <T> Stream<NeuronLayer<T>> layers(NeuralNetwork<T> neuralNetwork){
+    protected static <T> Stream<NeuronLayer<T>> layers(NeuralNetwork<T> neuralNetwork){
         return neuralNetwork.layers.stream();
     }
 
-    public static <T> Stream<Neuron<T>> neurons(NeuralNetwork<T> neuralNetwork){
+    protected static <T> Stream<Neuron<T>> neurons(NeuralNetwork<T> neuralNetwork){
         return layers(neuralNetwork).flatMap(NeuronLayer::neurons);
     }
 
-    public static <T> Stream<T> weights(NeuralNetwork<T> neuralNetwork){
+    protected static <T> Stream<T> weights(NeuralNetwork<T> neuralNetwork){
         return neurons(neuralNetwork).flatMap(Neuron::weights);
     }
 }

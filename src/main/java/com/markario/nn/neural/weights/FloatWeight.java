@@ -57,6 +57,12 @@ public class FloatWeight implements GenericWeight<FloatWeight> {
     }
 
     @Override
+    public FloatWeight mutate(Double percentage) {
+        value = (float) (value * (1.0 + percentage));
+        return this;
+    }
+
+    @Override
     public int compareTo(FloatWeight o) {
         return Float.compare(value, o.value);
     }
