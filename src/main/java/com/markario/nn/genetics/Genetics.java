@@ -48,11 +48,14 @@ public class Genetics<T> {
     }
 
     private Genome<T> roulette() {
-        double slice = random.nextDouble() * stats.getTotalFitness();
+        double slice = random.nextDouble() * stats.getPosTotalFitness();
         double fitnessCounter = 0.0;
 
         for (Genome<T> genome : population) {
-            fitnessCounter += genome.getFitness();
+            //Genomes with negative fitness do not get to reproduce.
+            if(genome.getFitness() > 0) {
+                fitnessCounter += genome.getFitness();
+            }
 
             if (fitnessCounter >= slice) {
                 return genome;
@@ -69,6 +72,7 @@ public class Genetics<T> {
     public void generation() {
         List<Genome<T>> newPopulation = new ArrayList<>(population.size());
         Collections.sort(population);
+        Collections.reverse(population);
         stats.reset();
         stats.calculate();
 
@@ -88,6 +92,7 @@ public class Genetics<T> {
             if (parent1 == parent2 || random.nextDouble() > config.crossoverRate) {
                 newPopulation.add(parent1.getCopy(weightFactory, weightHandler));
                 newPopulation.add(parent2.getCopy(weightFactory, weightHandler));
+                continue;
             }
 
             int numWeights = parent1.getWeights().size();
@@ -134,6 +139,7 @@ public class Genetics<T> {
     }
 
     public class Stats {
+        private double posTotalFitness = 0;
         private double totalFitness = 0;
         private double bestFitness = 0;
         private double averageFitness = 0;
@@ -145,27 +151,31 @@ public class Genetics<T> {
                 return;
             }
 
+            posTotalFitness = 0;
             totalFitness = 0;
-            double highest = 0;
-            double lowest = Double.MAX_VALUE;
-            for (int i = 0; i < population.size(); ++i) {
+            bestFitness = 0;
+            worstFitness = Double.MAX_VALUE;
+            for (int i = 0; i < population.size(); i++) {
                 double currentFitness = population.get(i).getFitness();
-                if (currentFitness > highest) {
-                    highest = currentFitness;
+                if (currentFitness > bestFitness) {
+                    bestFitness = currentFitness;
                     mostFitGenomeIndex = i;
-                    bestFitness = highest;
                 }
-                if (currentFitness < lowest) {
-                    lowest = currentFitness;
-                    worstFitness = lowest;
+                if (currentFitness < worstFitness) {
+                    worstFitness = currentFitness;
                 }
                 totalFitness += currentFitness;
+
+                if(currentFitness > 0){
+                    posTotalFitness += currentFitness;
+                }
             }
 
             averageFitness = totalFitness / population.size();
         }
 
         public void reset() {
+            posTotalFitness = 0;
             totalFitness = 0;
             bestFitness = 0;
             averageFitness = 0;
@@ -182,6 +192,10 @@ public class Genetics<T> {
                     ", worstFitness=" + worstFitness +
                     ", mostFitGenomeIndex=" + mostFitGenomeIndex +
                     '}';
+        }
+
+        public double getPosTotalFitness() {
+            return posTotalFitness;
         }
 
         public double getTotalFitness() {
@@ -203,6 +217,10 @@ public class Genetics<T> {
         public int getMostFitGenomeIndex() {
             return mostFitGenomeIndex;
         }
+    }
+
+    public Stats getStats() {
+        return stats;
     }
 
     public Stream<Genome<T>> genomes() {

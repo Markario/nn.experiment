@@ -32,22 +32,25 @@ public class GenericWeightExperiment<T extends GenericWeight<T>> {
         }
 
         Random random = new Random();
-        for(int gen = 0; gen < 100; gen++){
+        double target = random.nextDouble() * 5000;
+
+        for(int gen = 0; gen < 300; gen++){
             for(int updates = 0; updates < 100; updates++){
                 for(int i = 0; i < config.populationSize; i++){
                     List<DoubleWeight> outputs = experiment.update(i, inputs);
                     //train the networks to output higher values.
-                    double totalFitness = outputs.stream().mapToDouble(value -> value.value).sum();
-                    outputs.stream().forEach(value -> System.out.print(" "+value.value));
-                    Trace.v("");
-                    experiment.setFitness(i, totalFitness);
+                    double sum = outputs.stream().mapToDouble(value -> value.value).sum();
+                    double fitness = 10000 - Math.abs(target-sum);
+                    experiment.setFitness(i, fitness);
                 }
-                Trace.v("----");
             }
 
-            //end of generation.
             Trace.v("------------------------------");
             experiment.nextGeneration();
+            Trace.v(String.format("Target: %f", target));
+            int bestIndex = experiment.genetics.getStats().getMostFitGenomeIndex();
+            double sum = experiment.getNeuralNetwork(bestIndex).update(inputs).stream().mapToDouble(value -> value.value).sum();
+            Trace.v("Sum for best: "+sum);
             Trace.v("------------------------------");
         }
     }
@@ -65,6 +68,11 @@ public class GenericWeightExperiment<T extends GenericWeight<T>> {
         Trace.v("NN Experiment.");
 
         this.config = config;
+
+        if(!(config.populationSize % 2 == 0)){
+            throw new IllegalArgumentException("Population size must be even");
+        }
+
         weightHandler = new GenericWeightHandler<>(weightFactory);
         randomWeightFactory = weightHandler::getRandomWeight;
 

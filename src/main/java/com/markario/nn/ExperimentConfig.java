@@ -9,7 +9,7 @@ public class ExperimentConfig {
     int numNeuronsPerHiddenLayer = 5;
     int numOutputs = 10;
 
-    int populationSize = 25;
+    int populationSize = 30;
     double crossoverRate = .7;
     double mutationRate = .1;
     double maxMutationPercentage = .3;

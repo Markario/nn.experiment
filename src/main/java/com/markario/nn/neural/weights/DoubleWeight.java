@@ -28,7 +28,7 @@ public class DoubleWeight implements GenericWeight<DoubleWeight> {
 
     @Override
     public DoubleWeight random() {
-        value = (random.nextDouble() - random.nextDouble()) * 1000.0;
+        value = (random.nextDouble() - random.nextDouble());
         return this;
     }
 
@@ -46,7 +46,8 @@ public class DoubleWeight implements GenericWeight<DoubleWeight> {
 
     @Override
     public DoubleWeight sigmoid(DoubleWeight activationResponse) {
-        value = (1 / (1 + Math.exp(-value / activationResponse.value)));
+        //value = (1 / (1 + Math.exp(-value / activationResponse.value)));
+        value = Math.max(Math.min(value, 1000.0), -1000.0);
         return this;
     }
 
