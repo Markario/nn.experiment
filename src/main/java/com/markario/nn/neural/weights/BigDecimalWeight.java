@@ -9,7 +9,7 @@ import java.util.Random;
  * Created by markzepeda on 6/21/15.
  */
 public class BigDecimalWeight implements GenericWeight<BigDecimalWeight> {
-    private BigDecimal value = new BigDecimal(0);
+    public BigDecimal value = new BigDecimal(0);
     private static final Random random = new Random();
 
     @Override
@@ -32,13 +32,13 @@ public class BigDecimalWeight implements GenericWeight<BigDecimalWeight> {
 
     @Override
     public BigDecimalWeight random() {
-        value = BigDecimal.valueOf(random.nextDouble() - random.nextDouble());
+        value = BigDecimal.valueOf((random.nextDouble() - random.nextDouble()) * Double.MAX_VALUE);
         return this;
     }
 
     @Override
     public BigDecimalWeight add(BigDecimalWeight otherWeight) {
-        value =  value.add(otherWeight.value);
+        value = value.add(otherWeight.value);
         return this;
     }
 

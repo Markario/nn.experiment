@@ -6,7 +6,7 @@ import java.util.Random;
  * Created by markzepeda on 6/21/15.
  */
 public class DoubleWeight implements GenericWeight<DoubleWeight> {
-    private double value;
+    public double value;
     private static final Random random = new Random();
 
     @Override
@@ -28,13 +28,13 @@ public class DoubleWeight implements GenericWeight<DoubleWeight> {
 
     @Override
     public DoubleWeight random() {
-        value = random.nextDouble() - random.nextDouble();
+        value = (random.nextDouble() - random.nextDouble()) * 1000.0;
         return this;
     }
 
     @Override
     public DoubleWeight add(DoubleWeight otherWeight) {
-        value =  value + otherWeight.value;
+        value = value + otherWeight.value;
         return this;
     }
 
@@ -46,7 +46,7 @@ public class DoubleWeight implements GenericWeight<DoubleWeight> {
 
     @Override
     public DoubleWeight sigmoid(DoubleWeight activationResponse) {
-        value = ( 1 / ( 1 + Math.exp(-value / activationResponse.value)));
+        value = (1 / (1 + Math.exp(-value / activationResponse.value)));
         return this;
     }
 

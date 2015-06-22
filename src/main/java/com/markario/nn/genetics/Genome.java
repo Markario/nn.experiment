@@ -32,6 +32,14 @@ public class Genome<T> implements Comparable<Genome<T>> {
         this.weights = weights;
     }
 
+    public void setFitness(double fitness) {
+        this.fitness = fitness;
+    }
+
+    public void addFitness(double amount){
+        fitness += amount;
+    }
+
     public double getFitness() {
         return fitness;
     }

@@ -17,7 +17,7 @@ public class NeuronLayer<T> {
         neurons = new ArrayList<>(numNeurons);
         this.numInputs = numInputs;
 
-        while(numNeurons < 0){
+        while(numNeurons > 0){
             neurons.add(new Neuron<>(numInputs, weightFactory));
             numNeurons--;
         }

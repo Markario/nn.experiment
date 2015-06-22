@@ -6,7 +6,7 @@ import java.util.Random;
  * Created by markzepeda on 6/21/15.
  */
 public class ByteWeight implements GenericWeight<ByteWeight> {
-    private byte value;
+    public byte value;
     private static final Random random = new Random();
 
     @Override
@@ -49,7 +49,7 @@ public class ByteWeight implements GenericWeight<ByteWeight> {
 
     @Override
     public ByteWeight sigmoid(ByteWeight activationResponse) {
-        value = (byte) (1 / ( 1 + ((byte)Math.exp(-value / activationResponse.value))));
+        value = (byte) (1 / (1 + ((byte) Math.exp(-value / activationResponse.value))));
         return this;
     }
 

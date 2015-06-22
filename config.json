@@ -1,0 +1,12 @@
+{
+  "numInputs": 4,
+  "numHiddenLayers": 3,
+  "numNeuronsPerHiddenLayer": 5,
+  "numOutputs": 10,
+  "populationSize": 25,
+  "crossoverRate": 0.7,
+  "mutationRate": 0.1,
+  "maxMutationPercentage": 0.3,
+  "numBestToCopy": 4,
+  "numCopiesOfBest": 1
+}

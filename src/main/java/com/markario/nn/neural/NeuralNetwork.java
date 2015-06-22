@@ -40,13 +40,13 @@ public final class NeuralNetwork<T> {
     public static int calculateNumWeights(NeuralNetworkConfig<?> config){
         int numWeights = 0;
         if(config.numHiddenLayers > 0){
-            numWeights += config.numNeuronsPerHiddenLayer * config.numInputs;
+            numWeights += config.numNeuronsPerHiddenLayer * (config.numInputs+1);
             for(int i = 0; i < config.numHiddenLayers - 1; i++){
-                numWeights += config.numNeuronsPerHiddenLayer * config.numNeuronsPerHiddenLayer;
+                numWeights += config.numNeuronsPerHiddenLayer * (config.numNeuronsPerHiddenLayer+1);
             }
-            numWeights += config.numOutputs * config.numNeuronsPerHiddenLayer;
+            numWeights += config.numOutputs * (config.numNeuronsPerHiddenLayer+1);
         }else{
-            numWeights += config.numOutputs * config.numInputs;
+            numWeights += config.numOutputs * (config.numInputs+1);
         }
         return numWeights;
     }
@@ -61,6 +61,10 @@ public final class NeuralNetwork<T> {
                 weightIndex++;
             }
         }
+
+        if(weightIndex != newWeights.size()){
+            throw new IllegalStateException("Mismatched sizes");
+        }
     }
 
     public final List<T> update(List<T> inputs){
@@ -68,7 +72,7 @@ public final class NeuralNetwork<T> {
             throw new IllegalArgumentException("Inputs are null");
         }
         if(inputs.size() != config.numInputs){
-            throw new IllegalArgumentException(String.format("Inputs size is incorrect. expected: %d observed: %d", inputs.size(), config.numInputs));
+            throw new IllegalArgumentException(String.format("Inputs size is incorrect. expected: %d observed: %d", config.numInputs, inputs.size()));
         }
 
         List<T> outputs = new ArrayList<>();
@@ -77,18 +81,18 @@ public final class NeuralNetwork<T> {
             if(i > 0){
                 inputs = outputs;
                 //Clear the outputs from the last layer as they are now the inputs.
-                outputs.clear();
+                outputs = new ArrayList<>(layers.get(i).getNeurons().size());
             }
 
-            if( inputs.size() != layers.get(i).getNumInputs()){
-                throw new IllegalStateException("Inputs(or Outputs from last layer) do not match inputs for this layer");
+            if(inputs.size() != layers.get(i).getNumInputs()){
+                throw new IllegalStateException(String.format("Inputs(or Outputs from last layer) do not match inputs for this layer expected: %d observed: %d", layers.get(i).getNumInputs(), inputs.size()));
             }
 
             outputs = calcNeuronLayerOutputs(layers.get(i).getNeurons(), inputs);
         }
 
         if(outputs.size() != config.numOutputs){
-            throw new IllegalStateException(String.format("Outputs size is incorrect. expected: %d observed: %d", outputs.size(), config.numOutputs));
+            throw new IllegalStateException(String.format("Outputs size is incorrect. expected: %d observed: %d", config.numOutputs, outputs.size()));
         }
 
         return outputs;
