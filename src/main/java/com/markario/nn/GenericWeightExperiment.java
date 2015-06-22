@@ -26,13 +26,11 @@ public class GenericWeightExperiment<T extends GenericWeight<T>> {
         ExperimentConfig config = FileUtil.readTFromTextFile(new File("config.json"), ExperimentConfig.class);
         GenericWeightExperiment<DoubleWeight> experiment = new GenericWeightExperiment<>(config, () -> new DoubleWeight().zero());
 
-        Random random = new Random();
-
         List<DoubleWeight> inputs = new ArrayList<>(config.numInputs);
-        DoubleWeight weight = new DoubleWeight().random();
+        DoubleWeight weight = new DoubleWeight();
         inputs.add(weight);
 
-        for(int gen = 0; gen < 10000; gen++){
+        for(int gen = 0; gen < 250000; gen++){
             double input = 0.0d;
             while(input <= 2 * Math.PI){
                 for(int i = 0; i < config.populationSize; i++){
@@ -51,7 +49,7 @@ public class GenericWeightExperiment<T extends GenericWeight<T>> {
             experiment.nextGeneration();
 
             if(gen % 10 == 0){
-                Trace.v(String.format("Gen: %d, stats: %s",experiment.genetics.getGenerationNum(), experiment.getGenetics().getStats().toString()));
+                Trace.v(String.format("Gen: %d, stats: %s",experiment.genetics.getGenerationNum(), experiment.genetics.getStats().toString()));
             }
         }
 
