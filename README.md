@@ -1,6 +1,10 @@
 # nn.experiment
 General purpose feed-forward neural network.
 
+Still buggy and doesn't save the results or reload previous results.
+
+Based on the tutorials at http://www.ai-junkie.com/ann/evolved/nnt1.html
+
 Example of use:
 
   
