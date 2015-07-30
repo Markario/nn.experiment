@@ -100,6 +100,9 @@ public class Genetics<T> {
         if(best.size() > 0){
             for(int i = 0; i < best.size() && i < config.numBestToCopy; i++){
                 newPopulation.add(best.get(i).getCopy(weightFactory, weightHandler));
+                Genome bestButMutated = best.get(i).getCopy(weightFactory, weightHandler);
+                mutateGenome(bestButMutated);
+                newPopulation.add(bestButMutated);
             }
         }
 
